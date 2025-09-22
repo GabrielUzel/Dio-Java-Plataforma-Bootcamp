@@ -6,31 +6,43 @@ public class Dev {
   private String name;
   private Set<Content> enrolledContents = new LinkedHashSet<>();
   private Set<Content> completedContents = new LinkedHashSet<>();
+  private List<String> progressHistory = new ArrayList<>();
+
+  public Dev() {}
+
+  public Dev(String name) {
+    this.name = name;
+  }
 
   public void enrollBootcamp(Bootcamp bootcamp){
-    this.enrolledContents.addAll(bootcamp.getContents());
-    bootcamp.getEnrolledDevs().add(this);
+    enrolledContents.addAll(bootcamp.getContents());
+    bootcamp.addDev(this);
   }
 
   public void progress() {
-    Optional<Content> content = this.enrolledContents.stream().findFirst();
-    
+    Optional<Content> content = enrolledContents.stream().findFirst();
+
     if(content.isPresent()) {
-      this.completedContents.add(content.get());
-      this.enrolledContents.remove(content.get());
+      Content c = content.get();
+      completedContents.add(c);
+      enrolledContents.remove(c);
+      progressHistory.add("Completed: " + c.getTitle());
     } else {
       System.err.println("You are not enrolled in any content!");
     }
   }
 
   public double calculateTotalXp() {
-    double sum = 0;
+    return (
+      completedContents.stream()
+        .mapToDouble(Content::calculateXp)
+        .sum()
+    );
+  }
 
-    for(Content content : this.completedContents){
-      sum += content.calculateXp();
-    }
-
-    return sum;
+  public double progressPercentage() {
+    int total = enrolledContents.size() + completedContents.size();
+    return total == 0 ? 0 : ((double) completedContents.size() / total) * 100;
   }
 
   public String getName() {
@@ -42,19 +54,15 @@ public class Dev {
   }
 
   public Set<Content> getEnrolledContents() {
-    return enrolledContents;
-  }
-
-  public void setEnrolledContents(Set<Content> enrolledContents) {
-    this.enrolledContents = enrolledContents;
+    return Collections.unmodifiableSet(enrolledContents);
   }
 
   public Set<Content> getCompletedContents() {
-    return completedContents;
+    return Collections.unmodifiableSet(completedContents);
   }
 
-  public void setCompletedContents(Set<Content> completedContents) {
-    this.completedContents = completedContents;
+  public List<String> getProgressHistory() {
+    return Collections.unmodifiableList(progressHistory);
   }
 
   @Override
@@ -68,7 +76,7 @@ public class Dev {
     }
 
     Dev dev = (Dev) o;
-    
+
     return (
       Objects.equals(name, dev.name) &&
       Objects.equals(enrolledContents, dev.enrolledContents) &&

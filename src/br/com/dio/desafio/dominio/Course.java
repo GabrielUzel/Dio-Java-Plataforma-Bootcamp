@@ -3,12 +3,18 @@ package br.com.dio.desafio.dominio;
 public class Course extends Content {
   private int hours;
 
+  public Course() {}
+
+  public Course(String title, String description, int hours) {
+    setTitle(title);
+    setDescription(description);
+    this.hours = hours;
+  }
+
   @Override
   public double calculateXp() {
     return DEFAULT_XP * hours;
   }
-
-  public Course() {}
 
   public int getHours() {
     return hours;

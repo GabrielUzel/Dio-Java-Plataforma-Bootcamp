@@ -5,12 +5,18 @@ import java.time.LocalDate;
 public class Mentoring extends Content {
   private LocalDate date;
 
+  public Mentoring() {}
+
+  public Mentoring(String title, String description, LocalDate date) {
+    setTitle(title);
+    setDescription(description);
+    this.date = date;
+  }
+
   @Override
   public double calculateXp() {
     return DEFAULT_XP + 20d;
   }
-
-  public Mentoring() {}
 
   public LocalDate getDate() {
     return date;
