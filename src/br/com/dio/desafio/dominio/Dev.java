@@ -3,75 +3,81 @@ package br.com.dio.desafio.dominio;
 import java.util.*;
 
 public class Dev {
-    private String nome;
-    private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
-    private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
+  private String name;
+  private Set<Content> enrolledContents = new LinkedHashSet<>();
+  private Set<Content> completedContents = new LinkedHashSet<>();
 
-    public void inscreverBootcamp(Bootcamp bootcamp){
-        this.conteudosInscritos.addAll(bootcamp.getConteudos());
-        bootcamp.getDevsInscritos().add(this);
+  public void enrollBootcamp(Bootcamp bootcamp){
+    this.enrolledContents.addAll(bootcamp.getContents());
+    bootcamp.getEnrolledDevs().add(this);
+  }
+
+  public void progress() {
+    Optional<Content> content = this.enrolledContents.stream().findFirst();
+    
+    if(content.isPresent()) {
+      this.completedContents.add(content.get());
+      this.enrolledContents.remove(content.get());
+    } else {
+      System.err.println("You are not enrolled in any content!");
+    }
+  }
+
+  public double calculateTotalXp() {
+    double sum = 0;
+
+    for(Content content : this.completedContents){
+      sum += content.calculateXp();
     }
 
-    public void progredir() {
-        Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(conteudo.isPresent()) {
-            this.conteudosConcluidos.add(conteudo.get());
-            this.conteudosInscritos.remove(conteudo.get());
-        } else {
-            System.err.println("Você não está matriculado em nenhum conteúdo!");
-        }
+    return sum;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public Set<Content> getEnrolledContents() {
+    return enrolledContents;
+  }
+
+  public void setEnrolledContents(Set<Content> enrolledContents) {
+    this.enrolledContents = enrolledContents;
+  }
+
+  public Set<Content> getCompletedContents() {
+    return completedContents;
+  }
+
+  public void setCompletedContents(Set<Content> completedContents) {
+    this.completedContents = completedContents;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
 
-    public double calcularTotalXp() {
-        Iterator<Conteudo> iterator = this.conteudosConcluidos.iterator();
-        double soma = 0;
-        while(iterator.hasNext()){
-            double next = iterator.next().calcularXp();
-            soma += next;
-        }
-        return soma;
-
-        /*return this.conteudosConcluidos
-                .stream()
-                .mapToDouble(Conteudo::calcularXp)
-                .sum();*/
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
+    Dev dev = (Dev) o;
+    
+    return (
+      Objects.equals(name, dev.name) &&
+      Objects.equals(enrolledContents, dev.enrolledContents) &&
+      Objects.equals(completedContents, dev.completedContents)
+    );
+  }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Set<Conteudo> getConteudosInscritos() {
-        return conteudosInscritos;
-    }
-
-    public void setConteudosInscritos(Set<Conteudo> conteudosInscritos) {
-        this.conteudosInscritos = conteudosInscritos;
-    }
-
-    public Set<Conteudo> getConteudosConcluidos() {
-        return conteudosConcluidos;
-    }
-
-    public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
-        this.conteudosConcluidos = conteudosConcluidos;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Dev dev = (Dev) o;
-        return Objects.equals(nome, dev.nome) && Objects.equals(conteudosInscritos, dev.conteudosInscritos) && Objects.equals(conteudosConcluidos, dev.conteudosConcluidos);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(nome, conteudosInscritos, conteudosConcluidos);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, enrolledContents, completedContents);
+  }
 }
